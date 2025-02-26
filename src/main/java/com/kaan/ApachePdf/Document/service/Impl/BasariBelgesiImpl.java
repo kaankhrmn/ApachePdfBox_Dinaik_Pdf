@@ -6,15 +6,16 @@ import com.kaan.ApachePdf.Document.service.BasariBelgesiService;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Date;
 
@@ -41,7 +42,9 @@ public class BasariBelgesiImpl implements PdfPattern, BasariBelgesiService {
             PDPage page = document.getPage(0);
 
             PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true);
-            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 40);
+            File fontFile = new File("src/main/resources/templates/arial.ttf");
+            PDType0Font font = PDType0Font.load(document,fontFile);
+            contentStream.setFont(font, 40);
             contentStream.setNonStrokingColor(Color.BLACK);
 
             contentStream.beginText();
@@ -65,7 +68,7 @@ public class BasariBelgesiImpl implements PdfPattern, BasariBelgesiService {
             headers.add("Content-Disposition", "attachment; filename=output.pdf");
             headers.add("Content-Type", "application/pdf");
 
-            System.out.printf("Basari Belgesi : %s için %s tarihinde başarıyla oluşturulmuştur.%n",ad_soyad,new Date());
+            System.out.printf("Basari Belgesi : %s için %s tarihinde başarıyla oluşturulmuştur.%n", ad_soyad, new Date());
             return new ResponseEntity<>(baos.toByteArray(), headers, HttpStatus.OK);
 
         } catch (Exception e) {

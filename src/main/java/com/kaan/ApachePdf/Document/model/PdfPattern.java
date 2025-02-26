@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface PdfPattern {
 
-    ResponseEntity<byte[]> generateKisiKarti(String ad_soyad,String adres, String dogumYeri, String tckn, String cinsiyet);
+    ResponseEntity<byte[]> generateKisiKarti(String ad_soyad, String adres, String dogumYeri, String tckn, String cinsiyet);
 
-    ResponseEntity<byte[]> generateBasariBelgesi(String ad_soyad,String tarih);
+    ResponseEntity<byte[]> generateBasariBelgesi(String ad_soyad, String tarih);
 }

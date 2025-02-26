@@ -6,6 +6,7 @@ import com.kaan.ApachePdf.Document.service.KisiKartiService;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Date;
 
@@ -42,8 +43,11 @@ public class KisiKartiImpl implements PdfPattern, KisiKartiService {
             PDDocument document = PDDocument.load(inputStream);
             PDPage page = document.getPage(0);
 
+
             PDPageContentStream  contentStream = new PDPageContentStream(document, page,PDPageContentStream.AppendMode.APPEND, true);
-            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 13);
+            File fontFie = new File("src/main/resources/templates/arial.ttf");
+            PDType0Font font = PDType0Font.load(document,fontFie);
+            contentStream.setFont(font, 13);
             contentStream.setNonStrokingColor(Color.BLACK);
 
             contentStream.beginText();
