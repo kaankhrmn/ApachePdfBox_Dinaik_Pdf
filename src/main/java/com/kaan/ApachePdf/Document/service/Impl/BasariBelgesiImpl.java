@@ -5,8 +5,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import com.kaan.ApachePdf.Document.model.CreatePdf;
-import com.kaan.ApachePdf.Document.model.PdfPattern;
+import com.kaan.ApachePdf.Document.model.PdfFactory;
+import com.kaan.ApachePdf.Document.model.PdfGenerator;
 import com.kaan.ApachePdf.Document.service.BasariBelgesiService;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -29,7 +29,7 @@ import java.io.InputStream;
 import java.util.Date;
 
 @Service
-public class BasariBelgesiImpl implements PdfPattern, BasariBelgesiService {
+public class BasariBelgesiImpl implements PdfGenerator, BasariBelgesiService {
 
 
     String belge_sahibi = "Kaan Kahraman";
@@ -40,8 +40,8 @@ public class BasariBelgesiImpl implements PdfPattern, BasariBelgesiService {
     @Override
     public ResponseEntity<byte[]> generateDocument(String type, String ad_soyad, String tarih) {
         try {
-            PdfPattern pdfPattern = CreatePdf.pdfPattern(type);
-            return pdfPattern.generateBasariBelgesi(ad_soyad, tarih);
+            PdfGenerator pdfGenerator = PdfFactory.pdfPattern(type);
+            return pdfGenerator.generateBasariBelgesi(ad_soyad, tarih);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
