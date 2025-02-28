@@ -12,7 +12,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
@@ -34,7 +33,7 @@ public class KisiKartiImpl implements PdfPattern, KisiKartiService {
 
     String belge_sahibi = "Kaan Kahraman";
     String belge_tarihi = new Date().toString();
-    String belgeBilgisi = "Bu belge " + belge_tarihi + " ,  " + belge_sahibi + " tarafindan olusturulmustur.";
+    String belgeBilgisi = String.format("Bu belge %s tarihinde %s tarafindan üretilmistir", belge_tarihi, belge_sahibi);
 
     @Override
     public ResponseEntity<byte[]> generateDocument(String type, String ad_soyad, String adres, String dogumYeri, String tckn, String cinsiyet) {

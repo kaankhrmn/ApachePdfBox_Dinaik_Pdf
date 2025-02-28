@@ -34,7 +34,7 @@ public class BasariBelgesiImpl implements PdfPattern, BasariBelgesiService {
 
     String belge_sahibi = "Kaan Kahraman";
     String belge_tarihi = new Date().toString();
-    String belgeBilgisi = "Bu belge " + belge_tarihi + " ,  " + belge_sahibi + " tarafindan olusturulmustur.";
+    String belgeBilgisi = String.format("Bu belge %s tarihinde %s tarafindan üretilmistir", belge_tarihi, belge_sahibi);
 
 
     @Override
