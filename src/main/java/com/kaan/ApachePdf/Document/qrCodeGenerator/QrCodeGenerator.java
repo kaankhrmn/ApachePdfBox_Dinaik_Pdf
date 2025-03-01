@@ -1,4 +1,4 @@
-package com.kaan.ApachePdf.Document.QrCode;
+package com.kaan.ApachePdf.Document.qrCodeGenerator;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;

@@ -1,6 +1,6 @@
 package com.kaan.ApachePdf.Document.service.Impl;
 
-import com.kaan.ApachePdf.Document.QrCode.QrCodeGenerator;
+import com.kaan.ApachePdf.Document.qrCodeGenerator.QrCodeGenerator;
 import com.kaan.ApachePdf.Document.model.PdfFactory;
 import com.kaan.ApachePdf.Document.model.PdfGenerator;
 import com.kaan.ApachePdf.Document.service.BasariBelgesiService;
