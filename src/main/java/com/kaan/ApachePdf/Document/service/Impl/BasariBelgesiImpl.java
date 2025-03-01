@@ -1,6 +1,6 @@
 package com.kaan.ApachePdf.Document.service.Impl;
 
-import com.kaan.ApachePdf.Document.QrCode.QrCodeGenerator;
+import com.kaan.ApachePdf.Document.qrCodeGenerator.QrCodeGenerator;
 import com.kaan.ApachePdf.Document.model.PdfFactory;
 import com.kaan.ApachePdf.Document.model.PdfGenerator;
 import com.kaan.ApachePdf.Document.service.BasariBelgesiService;
@@ -33,6 +33,7 @@ public class BasariBelgesiImpl implements PdfGenerator, BasariBelgesiService {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+
     }
 
     @Override
@@ -64,6 +65,9 @@ public class BasariBelgesiImpl implements PdfGenerator, BasariBelgesiService {
             String belge_sahibi = "Kaan Kahraman";
             String belge_tarihi = new Date().toString();
             String belgeBilgisi = String.format("Bu belge %s tarihinde %s tarafindan üretilmistir", belge_tarihi, belge_sahibi);
+            String  belgeB = "http://localhost:8080/belge/goster/1345"; //adrese gönderip doğrulama yaptır
+            //postgreSql
+            //belgeyi indirince mail olarak atsın
 
             PDImageXObject qrImage = QrCodeGenerator.createQrCodeImage(document, belgeBilgisi, 100, 100);
             PDPageContentStream qrContentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true);
