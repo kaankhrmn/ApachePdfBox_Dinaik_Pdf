@@ -3,34 +3,30 @@ package com.kaan.ApachePdf.Document.controller;
 import com.kaan.ApachePdf.Document.model.Belge;
 import com.kaan.ApachePdf.Document.model.PdfFactory;
 import com.kaan.ApachePdf.Document.model.PdfGenerator;
-import com.kaan.ApachePdf.Document.service.Impl.BasariBelgesiImpl;
+import com.kaan.ApachePdf.Document.repository.BelgeRepository;
 import com.kaan.ApachePdf.Document.service.Impl.BelgeServiceImpl;
-import com.kaan.ApachePdf.Document.service.Impl.KisiKartiImpl;
 import com.kaan.ApachePdf.Document.service.Impl.MailServiceImpl;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/pdf/generate")
 @RequiredArgsConstructor
 public class PdfController {
 
-    private final BasariBelgesiImpl basariBelgesi;
-    private final KisiKartiImpl kisiKarti;
     private final BelgeServiceImpl belgeServiceImpl;
     private final MailServiceImpl mailService;
+    private final BelgeRepository belgeRepository;
 
     // Basarı Belgesi PDF Oluşturma
     @PostMapping("/BasariBelgesi")
-    public ResponseEntity<byte[]> generateBasariBelgesi(
+    public ResponseEntity<Void> generateBasariBelgesi(
             @RequestParam String ad_soyad,
             @RequestParam String email,
             @RequestParam String tarih
@@ -53,14 +49,12 @@ public class PdfController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // ❌ Yetkisiz erişim
         }
 
-        // **3️⃣ Factory Pattern ile ilgili PDF servisini al ve belgeyi oluştur**
-        PdfGenerator pdfGenerator = PdfFactory.pdfPattern("BasariBelgesi");
-        return pdfGenerator.generateBasariBelgesi(ad_soyad, tarih);
+        return ResponseEntity.status(HttpStatus.OK).build(); // Başarılı işlem
     }
 
     // Kisi Kartı PDF Oluşturma
     @PostMapping("/KisiKarti")
-    public ResponseEntity<byte[]> generateKisiKarti(
+    public ResponseEntity<Void> generateKisiKarti(
             @RequestParam String ad_soyad,
             @RequestParam String email,
             @RequestParam String adres,
@@ -86,33 +80,59 @@ public class PdfController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // ❌ Yetkisiz erişim
         }
 
-        // **3️⃣ Factory Pattern ile ilgili PDF servisini al ve belgeyi oluştur**
-        PdfGenerator pdfGenerator = PdfFactory.pdfPattern("KisiKarti");
-        return pdfGenerator.generateKisiKarti(ad_soyad, adres, dogumYeri, tckn, cinsiyet);
+        return ResponseEntity.status(HttpStatus.OK).build(); // Başarılı işlem
     }
 
-//    @GetMapping("/download")
-//    public ResponseEntity<Resource> downloadAndVerify(@RequestParam String belgeNo) {
-//        try {
-//            // Belge doğrulama işlemi
-//            boolean isVerified = belgeServiceImpl.belgeDogrula(belgeNo);
-//            if (!isVerified) {
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                        .body(null);
-//            }
-//
-//            // PDF oluşturma ve indirme işlemi
-//            byte[] pdfData = belgeServiceImpl.generatePdf(belgeNo);
-//            ByteArrayResource resource = new ByteArrayResource(pdfData);
-//
-//            return ResponseEntity.ok()
-//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=belge_" + belgeNo + ".pdf")
-//                    .contentLength(pdfData.length)
-//                    .body(resource);
-//
-//        } catch (IOException e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(null);
-//        }
-//    }
+
+    @GetMapping("/downloadBasariBelgesi")
+    public ResponseEntity<byte[]> downloadBasariBelgesi(@RequestParam String belgeNo) {
+        // **1️⃣ Belge numarası veritabanında var mı kontrol et**
+        Optional<Belge> belgeOpt = belgeRepository.findByBelgeNo(belgeNo);
+
+        if (belgeOpt.isEmpty()) {
+            // Belge bulunamadığında 404 döndürür ve Swagger'da indirme butonunu görünmez yapar
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(("Belge bulunamadı: " + belgeNo).getBytes());
+        }
+
+        // **2️⃣ Belgeyi Veritabanından Çek ve Kullanıcı Bilgilerini Al**
+        Belge belge = belgeOpt.get();
+        String adSoyad = belge.getAdSoyad();
+
+        // **3️⃣ Factory Pattern ile BasariBelgesi PDF servisini al ve belgeyi oluştur**
+        PdfGenerator pdfGenerator = PdfFactory.pdfPattern("BasariBelgesi");
+
+        try {
+            // Basari Belgesi için PDF oluşturuluyor, POST'tan gelen bilgileri kullanıyoruz
+            return pdfGenerator.generateBasariBelgesi(adSoyad, LocalDate.now().toString());
+        } catch (Exception e) {
+            // Hata durumunda uygun HTTP kodu ve mesajı döndür
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("PDF oluşturulurken bir hata oluştu.".getBytes());
+        }
+    }
+
+
+
+    // Kisi Kartı PDF İndirme (GET İşlemi)
+    @GetMapping("/downloadKisiKarti")
+    public ResponseEntity<byte[]> downloadKisiKarti(@RequestParam String belgeNo) {
+        // **1️⃣ Belge numarası veritabanında var mı kontrol et**
+        Optional<Belge> belgeOpt = belgeRepository.findByBelgeNo(belgeNo);
+        if (belgeOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(("Belge bulunamadı: " + belgeNo).getBytes());
+        }
+
+        // **2️⃣ Factory Pattern ile Kisi Kartı PDF servisini al ve belgeyi oluştur**
+        PdfGenerator pdfGenerator = PdfFactory.pdfPattern("KisiKarti");
+
+        try {
+            // Kisi Kartı için PDF oluşturuluyor
+            return pdfGenerator.generateKisiKarti("Kaan Kahraman", "Trabzon", "Akçaabat", "123456789", "Erkek");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
+

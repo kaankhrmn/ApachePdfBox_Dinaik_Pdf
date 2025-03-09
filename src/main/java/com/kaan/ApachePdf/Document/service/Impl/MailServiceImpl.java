@@ -20,22 +20,22 @@ public class MailServiceImpl {
     public void sendVerificationEmail(String recipientEmail, String verificationLink) {
         String subject = "PDF Doğrulama";
 
-        // HTML formatında daha profesyonel bir e-posta içeriği oluşturduk
+        // HTML formatında e-posta içeriği
         String body = "<html><body>"
                 + "<h2>Merhaba,</h2>"
-                + "<p>PDF'inizi indirip doğrulamak için aşağıdaki bağlantıya tıklayın:</p>"
-                + "<p><a href='" + verificationLink + "' style='color:blue; font-weight:bold;'>PDF'yi Doğrula</a></p>"
+                + "<p>PDF'inizi indirmek için aşağıdaki bağlantıya tıklayın:</p>"
+                + "<p><a href='" + verificationLink + "' style='color:blue; font-weight:bold;'>PDF'yi İndir</a></p>"
                 + "<br><p>İyi günler dileriz.</p>"
                 + "</body></html>";
+        System.out.println(String.format("verificationLink : %s", verificationLink));
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(recipientEmail);
             helper.setSubject(subject);
-            helper.setText(body, true); // HTML olarak mail içeriğini gönderiyoruz
+            helper.setText(body, true);
 
-            // E-posta gönderimi
             mailSender.send(message);
             logger.info("Doğrulama e-postası başarıyla gönderildi: {}", recipientEmail);
 
