@@ -84,55 +84,39 @@ public class PdfController {
     }
 
 
-    @GetMapping("/downloadBasariBelgesi")
-    public ResponseEntity<byte[]> downloadBasariBelgesi(@RequestParam String belgeNo) {
-        // **1️⃣ Belge numarası veritabanında var mı kontrol et**
+
+    @GetMapping("/verify")
+    public ResponseEntity<byte[]> verifyAndDownload(@RequestParam String belgeNo) {
         Optional<Belge> belgeOpt = belgeRepository.findByBelgeNo(belgeNo);
 
         if (belgeOpt.isEmpty()) {
-            // Belge bulunamadığında 404 döndürür ve Swagger'da indirme butonunu görünmez yapar
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(("Belge bulunamadı: " + belgeNo).getBytes());
+                    .body("Belge bulunamadı.".getBytes());
         }
 
-        // **2️⃣ Belgeyi Veritabanından Çek ve Kullanıcı Bilgilerini Al**
         Belge belge = belgeOpt.get();
-        String adSoyad = belge.getAdSoyad();
 
-        // **3️⃣ Factory Pattern ile BasariBelgesi PDF servisini al ve belgeyi oluştur**
-        PdfGenerator pdfGenerator = PdfFactory.pdfPattern("BasariBelgesi");
-
-        try {
-            // Basari Belgesi için PDF oluşturuluyor, POST'tan gelen bilgileri kullanıyoruz
-            return pdfGenerator.generateBasariBelgesi(adSoyad, LocalDate.now().toString());
-        } catch (Exception e) {
-            // Hata durumunda uygun HTTP kodu ve mesajı döndür
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("PDF oluşturulurken bir hata oluştu.".getBytes());
-        }
-    }
-
-
-
-    // Kisi Kartı PDF İndirme (GET İşlemi)
-    @GetMapping("/downloadKisiKarti")
-    public ResponseEntity<byte[]> downloadKisiKarti(@RequestParam String belgeNo) {
-        // **1️⃣ Belge numarası veritabanında var mı kontrol et**
-        Optional<Belge> belgeOpt = belgeRepository.findByBelgeNo(belgeNo);
-        if (belgeOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(("Belge bulunamadı: " + belgeNo).getBytes());
+        // Eğer belge zaten doğrulandıysa tekrar doğrulama yapmadan indir
+        if (!belge.isDogrulandi()) {
+            belge.setDogrulandi(true);
+            belgeRepository.save(belge);
         }
 
-        // **2️⃣ Factory Pattern ile Kisi Kartı PDF servisini al ve belgeyi oluştur**
-        PdfGenerator pdfGenerator = PdfFactory.pdfPattern("KisiKarti");
+        // **Factory Pattern ile ilgili PDF servisini seç**
+        PdfGenerator pdfGenerator = PdfFactory.pdfPattern(belge.getBelgeTuru());
 
         try {
-            // Kisi Kartı için PDF oluşturuluyor
-            return pdfGenerator.generateKisiKarti("Kaan Kahraman", "Trabzon", "Akçaabat", "123456789", "Erkek");
+            if ("BasariBelgesi".equalsIgnoreCase(belge.getBelgeTuru())) {
+                return pdfGenerator.generateBasariBelgesi(belge.getAdSoyad(), LocalDate.now().toString());
+            } else if ("KisiKarti".equalsIgnoreCase(belge.getBelgeTuru())) {
+                return pdfGenerator.generateKisiKarti(belge.getAdSoyad(), "Bandırma", "Bandırma", "123456789", "Erkek");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Geçersiz belge türü.".getBytes());
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 }
 
