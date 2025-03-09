@@ -84,7 +84,6 @@ public class PdfController {
     }
 
 
-
     @GetMapping("/verify")
     public ResponseEntity<byte[]> verifyAndDownload(@RequestParam String belgeNo) {
         Optional<Belge> belgeOpt = belgeRepository.findByBelgeNo(belgeNo);

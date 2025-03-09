@@ -1,14 +1,14 @@
 package com.kaan.ApachePdf.Document.service.Impl;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.MailException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.MailException;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +38,7 @@ public class MailServiceImpl {
 
             mailSender.send(message);
             logger.info("Doğrulama e-postası başarıyla gönderildi: {}", recipientEmail);
+
 
         } catch (MailException | MessagingException e) {
             logger.error("E-posta gönderme hatası: {}", e.getMessage());

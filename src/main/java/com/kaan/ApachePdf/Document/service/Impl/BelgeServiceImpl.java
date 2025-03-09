@@ -7,7 +7,6 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,6 +22,7 @@ public class BelgeServiceImpl implements BelgeService {
 
     @Override
     public Belge belgeKaydet(String adSoyad, String email, String belgeTuru) throws MessagingException {
+
         String belgeNo = UUID.randomUUID().toString();
 
         Belge belge = Belge.builder()
@@ -37,10 +37,11 @@ public class BelgeServiceImpl implements BelgeService {
         Belge savedBelge = belgeRepository.save(belge);
 
         return savedBelge;
-    }
+   }
 
     @Override
     public boolean belgeDogrula(String belgeNo) {
+
         Optional<Belge> belgeOpt = belgeRepository.findByBelgeNo(belgeNo);
 
         if (belgeOpt.isEmpty()) {
@@ -49,7 +50,6 @@ public class BelgeServiceImpl implements BelgeService {
         }
 
         Belge mevcutBelge = belgeOpt.get();
-
         belgeRepository.save(mevcutBelge);
 
         logger.info("Belge doğrulandı: {}", belgeNo);
